@@ -4,6 +4,8 @@
 ;; $ brew install aspell --lang=en
 ;; NOTE: still having issues with flyspell -- need to investigate
 
+(add-to-list 'load-path "~/.emacs.d/downloads")
+
 (require 'package)
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/") t)
@@ -19,6 +21,7 @@
                       pylint python-mode python-pep8 ruby-mode yaml-mode
                       markdown-mode textmate find-things-fast coffee-mode
                       color-theme-ir-black)
+                      vc vc-darcs ibuffer-vc
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -73,6 +76,30 @@
 ;; Keybindings for window resize.
 (global-set-key (kbd "<C-S-left>") 'shrink-window-horizontally)
 (global-set-key (kbd "<C-S-right>") 'enlarge-window-horizontally)
+
+;; Keybindings for navigating buffers.
+(global-set-key (kbd "C-`") 'ibuffer)
+(global-set-key (kbd "C-1") 'switch-to-prev-buffer)
+(global-set-key (kbd "C-2") 'switch-to-next-buffer)
+(global-set-key (kbd "C-0") 'kill-buffer)
+
+;; Customize ibuffer.
+(add-hook 'ibuffer-hook
+          (lambda ()
+            ;; Turn on ibuffer-vc (groups by git project).
+            (ibuffer-vc-set-filter-groups-by-vc-root)
+            (ibuffer-do-sort-by-alphabetic)
+            ;; Turn on isearch for quick buffer lookup.
+            (isearch-forward)))
+
+
+
+(require 'ibuffer-git)
+(setq ibuffer-formats
+      '((mark modified read-only vc-status-mini " "
+              (name 30 18 :left :elide) " "
+              (git-status 8 8 :left) " "
+              filename-and-process)))
 
 ;; Disable line highlighting.
 (remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)

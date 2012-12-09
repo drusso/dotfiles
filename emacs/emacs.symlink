@@ -6,6 +6,8 @@
 
 (require 'package)
 (add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (package-initialize)
 
@@ -18,8 +20,7 @@
                       idle-highlight-mode magit org org-magit pyflakes
                       pylint python-mode python-pep8 ruby-mode yaml-mode
                       markdown-mode textmate find-things-fast coffee-mode
-                      highlight-indentation
-                      color-theme-ir-black)
+                      nrepl scss-mode highlight-indentation)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -34,24 +35,13 @@
 ;; start a single emacs server
 (server-start)
 
-;; make the right command key control
-(setq mac-right-command-modifier 'ctrl)
 ;; use a small font size for MBP Retina
 (set-face-attribute 'default nil :height 100)
 
 (require 'color-theme)
 (require 'color-theme-solarized)
-(require 'color-theme-ir-black)
 (setq color-theme-is-global nil)
-
-(color-theme-solarized-dark)
-
-(add-hook 'after-make-frame-functions
-          (lambda (frame)
-             (select-frame frame)
-             (if (window-system frame)
-                 (color-theme-solarized-dark)
-                 (color-theme-ir-black))))
+(color-theme-solarized-light)
 
 ;; Enable mouse support in terminal.
 (require 'mouse)
@@ -75,14 +65,20 @@
 (defun ido-disable-line-trucation () (set (make-local-variable 'truncate-lines) nil))
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-trucation)
 
-;; enable textmate minor mode
+;; Use textmate minor mode, but don't use textmate's 'textmate-goto-file
+;; binding.
+(require 'textmate)
+(define-key *textmate-mode-map* [(super t)] nil)
 (textmate-mode)
+
+;; Use find-things-fast instead.
+(global-set-key [(super t)] 'ftf-find-file)
 
 ;; Keybindings for window resize.
 (global-set-key (kbd "<C-S-left>") 'shrink-window-horizontally)
 (global-set-key (kbd "<C-S-right>") 'enlarge-window-horizontally)
 
-(global-set-key (kbd "s-`") 'switch-to-buffer)
+(global-set-key (kbd "C-`") 'switch-to-buffer)
 (global-set-key (kbd "C--") 'switch-to-prev-buffer)
 (global-set-key (kbd "C-=") 'switch-to-next-buffer)
 (global-set-key (kbd "C-0") 'kill-buffer)
@@ -93,17 +89,59 @@
 ;; use clojure-mode to edit ClojureScript files
 (add-to-list 'auto-mode-alist '("\.cljs$" . clojure-mode))
 
+;; nrepl
+(require 'nrepl)
+(setq nrepl-popup-stacktraces nil)
+(add-hook 'nrepl-mode-hook
+          (lambda () (setq show-trailing-whitespace nil)))
+(add-hook 'nrepl-interaction-mode-hook
+          'nrepl-turn-on-eldoc-mode)
+
+;; ansi term
+(defvar terms '())
+(defun open-ansi-term ()
+  (interactive)
+  (let* ((name (read-from-minibuffer "Name: "))
+         (term-buffer-assoc (assoc name terms))
+         (term-buffer (nth 1 term-buffer-assoc))
+         (term-name (buffer-name term-buffer))
+         (term-exists (and term-buffer term-name)))
+    (if term-exists
+      (switch-to-buffer term-buffer)
+      (let* ((term-buffer (ansi-term (getenv "SHELL") name))
+             (new-assoc '())
+             (new-assoc (cons term-buffer new-assoc))
+             (new-assoc (cons name new-assoc))
+             (new-terms (cons new-assoc terms)))
+        (setq terms new-terms)))))
+(global-set-key (kbd "C-1") 'open-ansi-term)
+(add-hook 'term-mode-hook (lambda () (setq show-trailing-whitespace nil)))
+
 ;; Set the default fill column width to 79.
 (setq-default fill-column 79)
 
 ;; indentation highlighting
 (require 'highlight-indentation)
+(setq-default highlight-indent-offset 4)
 
 ;; set indentation in coffee mode
+(defun coffee-spec-highlight ()
+  (highlight-phrase "describe" "hi-yellow")
+  (highlight-phrase "it" "hi-blue-b")
+  (highlight-phrase "before" "hi-green")
+  (highlight-phrase "after" "hi-green")
+  (highlight-phrase "beforeEach" "hi-green")
+  (highlight-phrase "afterEach" "hi-green"))
+
 (defun coffee-custom ()
   (make-local-variable 'tab-width)
-  (set 'tab-width 2))
+  (set 'tab-width 2)
+  (if (string-match "_spec.coffee$" (buffer-file-name))
+      (coffee-spec-highlight)))
 (add-hook 'coffee-mode-hook 'coffee-custom)
+
+;; disable automatic scss compilation
+(setq scss-compile-at-save nil)
 
 ;; configure the file extensions used by markdown mode
 (setq auto-mode-alist
@@ -120,6 +158,10 @@
 ;; Use visual line mode by default for org files.
 (add-hook 'org-mode-hook 'turn-off-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-visual-line-mode)
+
+;; Disable the visible notification (note: this seems to activate the audible
+;; bell).
+(setq visible-bell nil)
 
 ;; reduce the number of signals that can trigger the alarm bell
 (setq ring-bell-function
@@ -153,45 +195,14 @@
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 5)))
 
-;; highlight 80+ for Python
-(add-hook 'python-mode-hook (lambda () (highlight-80+-mode)))
-
 ;; Enable the menu bar
 (menu-bar-mode t)
 
 ;; Show column numbers
 (setq column-number-mode t)
 
-;; Switch to prev/ next buffer using OS X keybindings
-(global-set-key (kbd "s-{") 'switch-to-prev-buffer)
-(global-set-key (kbd "s-}") 'switch-to-next-buffer)
-
-;; misc functions, from emacs-prelude
-;; https://github.com/bbatsov/emacs-prelude/blob/master/modules/prelude-core.el
-
-(defun prelude-google ()
-  "Googles a query or region if any."
-  (interactive)
-  (browse-url
-   (concat
-    "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
-    (if mark-active
-        (buffer-substring (region-beginning) (region-end))
-      (read-string "Google: ")))))
-
-(defun prelude-swap-windows ()
-  "If you have 2 windows, it swaps them."
-  (interactive)
-  (if (/= (count-windows) 2)
-      (message "You need exactly 2 windows to do this.")
-    (let* ((w1 (first (window-list)))
-           (w2 (second (window-list)))
-           (b1 (window-buffer w1))
-           (b2 (window-buffer w2))
-           (s1 (window-start w1))
-           (s2 (window-start w2)))
-      (set-window-buffer w1 b2)
-      (set-window-buffer w2 b1)
-      (set-window-start w1 s2)
-      (set-window-start w2 s1)))
-  (other-window 1))
+;; Setup the frame.
+(split-window-right)
+(split-window-right)
+(balance-windows)
+(ns-toggle-fullscreen)

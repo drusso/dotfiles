@@ -36,4 +36,4 @@ function parse_git_branch {
   echo "("${ref#refs/heads/}")"
 }
 
-PS1="\n$YELLOW[\u]$RED \w $GREEN\$(parse_git_branch)\n$BLUE$ $NON"
+PS1="\n$YELLOW[\u]$RED \w $GREEN\$(parse_git_branch)\n$BLUE| $NON"

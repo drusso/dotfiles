@@ -74,10 +74,19 @@
 ;; Use find-things-fast instead.
 (global-set-key [(super t)] 'ftf-find-file)
 
-;; Keybindings for window resize.
-(global-set-key (kbd "<C-S-left>") 'shrink-window-horizontally)
-(global-set-key (kbd "<C-S-right>") 'enlarge-window-horizontally)
+;; Window management
+(defvar resize-mode-keymap (make-keymap) "resize mode keymap")
+(define-key resize-mode-keymap (kbd "<left>") 'shrink-window-horizontally)
+(define-key resize-mode-keymap (kbd "<right>") 'enlarge-window-horizontally)
+(define-key resize-mode-keymap (kbd "<down>") 'shrink-window)
+(define-key resize-mode-keymap (kbd "<up>") 'enlarge-window)
+(define-minor-mode resize-mode "something"
+  :group 'window-management
+  :init-value nil
+  :lighter " resize"
+  :keymap resize-mode-keymap)
 
+;; Buffer management
 (global-set-key (kbd "C-`") 'switch-to-buffer)
 (global-set-key (kbd "C--") 'switch-to-prev-buffer)
 (global-set-key (kbd "C-=") 'switch-to-next-buffer)

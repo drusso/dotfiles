@@ -145,6 +145,12 @@ With argument, do this that many times."
 
 (global-set-key (read-kbd-macro "<M-DEL>") 'backward-delete-word)
 
+(defun flush-buffer-history ()
+  "Clear the list of recent files that were opened. When this
+list is cleared, ido's buffer list will no longer list recently
+opened buffers."
+  (interactive)
+  (setq recentf-list '()))
 
 ;; Window management
 (defvar resize-mode-keymap (make-keymap) "resize mode keymap")

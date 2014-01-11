@@ -94,6 +94,30 @@
 (textmate-mode)
 (global-set-key [(super t)] 'ftf-find-file)
 
+;; Set up ECB (Emacs Code Browser).
+(require 'ecb-autoloads)
+(global-set-key (kbd "C-1") 'ecb-toggle-ecb-windows)
+(global-set-key (kbd "C-2") 'ecb-goto-window-directories)
+(global-set-key (kbd "C-3") 'ecb-goto-window-edit1)
+(global-set-key (kbd "C-4") 'ecb-goto-window-edit2)
+(setq
+ ecb-layout-name "left13"
+ ecb-options-version "2.40"
+ ecb-show-sources-in-directories-buffer (quote always)
+ ecb-source-file-regexps (quote ((".*" ("\\(^\\(\\.\\|#\\)\\|\\(~$\\|\\.\\(pyc\\|elc\\|obj\\|o\\|class\\|lib\\|dll\\|a\\|so\\|cache\\)$\\)\\)") ("^\\.\\(emacs\\|gnus\\)$"))))
+ ecb-source-path
+  (quote
+   (("~" "~")
+    ))
+ ecb-split-edit-window-after-start (quote horizontal)
+ ecb-tip-of-the-day nil
+ ecb-tree-buffer-style (quote ascii-no-guides)
+ ecb-tree-indent 0
+ ecb-tree-make-parent-node-sticky nil
+ ecb-vc-enable-support t
+ ecb-windows-width 0.20)
+(ecb-minor-mode)
+
 ;; Set up bookmark (bm, https://github.com/joodland/bm).
 (require 'bm)
 (setq bm-cycle-all-buffers nil)
@@ -284,3 +308,10 @@ opened buffers."
 (split-window-right)
 (balance-windows)
 (ns-toggle-fullscreen)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ecb-options-version "2.40"))

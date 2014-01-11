@@ -206,20 +206,11 @@ With argument, do this that many times."
 (require 'highlight-indentation)
 (setq-default highlight-indent-offset 4)
 
-;; set indentation in coffee mode
-(defun coffee-spec-highlight ()
-  (highlight-phrase "describe" "hi-yellow")
-  (highlight-phrase "it" "hi-blue-b")
-  (highlight-phrase "before" "hi-green")
-  (highlight-phrase "after" "hi-green")
-  (highlight-phrase "beforeEach" "hi-green")
-  (highlight-phrase "afterEach" "hi-green"))
 
 (defun coffee-custom ()
   (make-local-variable 'tab-width)
   (set 'tab-width 2)
-  (if (string-match "_spec.coffee$" (buffer-file-name))
-      (coffee-spec-highlight)))
+  )
 (add-hook 'coffee-mode-hook 'coffee-custom)
 
 ;; disable automatic scss compilation

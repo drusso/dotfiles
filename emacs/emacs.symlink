@@ -226,6 +226,13 @@ opened buffers."
 (require 'highlight-indentation)
 (setq-default highlight-indent-offset 4)
 
+;; Keybinding for phrase highlighting.
+(global-set-key (kbd "M-p") 'highlight-phrase)
+
+;; Additional key bindings for navigating buffers quickly.
+(global-set-key (kbd "C-,") 'backward-paragraph)
+(global-set-key (kbd "C-.") 'forward-paragraph)
+(global-set-key (kbd "C-/") 'exchange-point-and-mark)
 
 (defun coffee-custom ()
   (make-local-variable 'tab-width)

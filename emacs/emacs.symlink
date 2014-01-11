@@ -208,25 +208,12 @@ opened buffers."
 (add-hook 'nrepl-interaction-mode-hook
           'nrepl-turn-on-eldoc-mode)
 
-;; ansi term
-(defvar terms '())
-(defun open-ansi-term ()
-  (interactive)
-  (let* ((name (read-from-minibuffer "Name: "))
-         (term-buffer-assoc (assoc name terms))
-         (term-buffer (nth 1 term-buffer-assoc))
-         (term-name (buffer-name term-buffer))
-         (term-exists (and term-buffer term-name)))
-    (if term-exists
-      (switch-to-buffer term-buffer)
-      (let* ((term-buffer (ansi-term (getenv "SHELL") name))
-             (new-assoc '())
-             (new-assoc (cons term-buffer new-assoc))
-             (new-assoc (cons name new-assoc))
-             (new-terms (cons new-assoc terms)))
-        (setq terms new-terms)))))
-(global-set-key (kbd "C-1") 'open-ansi-term)
-(add-hook 'term-mode-hook (lambda () (setq show-trailing-whitespace nil)))
+;; Setup for ansi-term.
+(add-hook 'term-mode-hook
+          (lambda () (setq show-trailing-whitespace nil)))
+(add-hook 'term-exec-hook
+          (lambda () (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix)))
+
 
 ;; Set the default fill column width to 79.
 (setq-default fill-column 79)

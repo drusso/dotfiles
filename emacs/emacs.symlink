@@ -297,8 +297,8 @@ opened buffers."
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 5)))
 
-;; Enable the menu bar
-(menu-bar-mode t)
+;; To enable the menu bar, set menu-bar-mode to `t`.
+;; (menu-bar-mode t)
 
 ;; Show column numbers
 (setq column-number-mode t)

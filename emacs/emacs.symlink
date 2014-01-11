@@ -93,6 +93,37 @@
 (define-key *textmate-mode-map* [(super t)] nil)
 (textmate-mode)
 
+;; Set up bookmark (bm, https://github.com/joodland/bm).
+(require 'bm)
+(setq bm-cycle-all-buffers nil)
+
+(defun bm-navigate-all (direction)
+  (let ((is-cycling-all bm-cycle-all-buffers))
+    (setq bm-cycle-all-buffers t)
+    (funcall direction)
+    (setq bm-cycle-all-buffers is-cycling-all)
+    ))
+
+(defun bm-previous-all ()
+  "Navigate the bookmarks across all buffers in the reverse
+direction. This temporarily ignores the `bm-cycle-all-buffers`
+option."
+  (interactive)
+  (bm-navigate-all 'bm-previous))
+
+(defun bm-next-all ()
+  "Navigate the bookmarks across all buffers in the forward
+direction. This temporarily ignores the `bm-cycle-all-buffers`
+option."
+  (interactive)
+  (bm-navigate-all 'bm-next))
+
+(global-set-key (kbd "M-0") 'bm-toggle)
+(global-set-key (kbd "M--") 'bm-previous)
+(global-set-key (kbd "M-=") 'bm-next)
+(global-set-key (kbd "M-_") 'bm-previous-all)
+(global-set-key (kbd "M-+") 'bm-next-all)
+
 ;; Use find-things-fast instead.
 (global-set-key [(super t)] 'ftf-find-file)
 

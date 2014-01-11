@@ -124,6 +124,26 @@ option."
 (global-set-key (kbd "M-_") 'bm-previous-all)
 (global-set-key (kbd "M-+") 'bm-next-all)
 
+;; Change the behaviour of M-d so that its use does not place removed text onto
+;; the kill ring.
+(defun delete-word (arg)
+  "Delete characters forward until encountering the end of a word.
+With argument, do this that many times."
+  (interactive "p")
+  (delete-region (point) (progn (forward-word arg) (point))))
+
+(global-set-key (kbd "M-d") 'delete-word)
+
+;; Change the behaviour of of M-DEL so that its use does not place the removed
+;; text onto the kill ring.
+(defun backward-delete-word (arg)
+  "Delete characters backward until encountering the end of a word.
+With argument, do this that many times."
+  (interactive "p")
+  (delete-word (- arg)))
+
+(global-set-key (read-kbd-macro "<M-DEL>") 'backward-delete-word)
+
 ;; Use find-things-fast instead.
 (global-set-key [(super t)] 'ftf-find-file)
 

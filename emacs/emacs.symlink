@@ -234,6 +234,8 @@ opened buffers."
 (global-set-key (kbd "C-.") 'forward-paragraph)
 (global-set-key (kbd "C-/") 'exchange-point-and-mark)
 
+;; Set indendation to 2 spaces for javascript and coffee script modes.
+(setq js-indent-level 2)
 (defun coffee-custom ()
   (make-local-variable 'tab-width)
   (set 'tab-width 2)

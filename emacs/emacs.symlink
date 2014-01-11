@@ -60,10 +60,10 @@
 ;; use a small font size for MBP Retina
 (set-face-attribute 'default nil :height 100)
 
+;; Set up the solarized colour theme.
 (require 'color-theme)
 (require 'color-theme-solarized)
-(setq color-theme-is-global nil)
-(color-theme-solarized-light)
+(color-theme-solarized-dark)
 
 ;; Enable mouse support in terminal.
 (require 'mouse)

@@ -88,10 +88,11 @@
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-trucation)
 
 ;; Use textmate minor mode, but don't use textmate's 'textmate-goto-file
-;; binding.
+;; binding. Instead, use find-things-fast for searching projects.
 (require 'textmate)
 (define-key *textmate-mode-map* [(super t)] nil)
 (textmate-mode)
+(global-set-key [(super t)] 'ftf-find-file)
 
 ;; Set up bookmark (bm, https://github.com/joodland/bm).
 (require 'bm)
@@ -144,8 +145,6 @@ With argument, do this that many times."
 
 (global-set-key (read-kbd-macro "<M-DEL>") 'backward-delete-word)
 
-;; Use find-things-fast instead.
-(global-set-key [(super t)] 'ftf-find-file)
 
 ;; Window management
 (defvar resize-mode-keymap (make-keymap) "resize mode keymap")

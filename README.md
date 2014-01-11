@@ -1,4 +1,4 @@
-mjrusso's dotfiles
+drusso's dotfiles
 ==================
 
 My personalized system configuration. ([Inspiration](http://zachholman.com/2010/08/dotfiles-are-meant-to-be-forked/))
@@ -6,7 +6,7 @@ My personalized system configuration. ([Inspiration](http://zachholman.com/2010/
 installation
 ------------
 
-    git clone git://github.com/mjrusso/dotfiles ~/.dotfiles
+    git clone git://github.com/drusso/dotfiles ~/.dotfiles
     cd ~/.dotfiles
     rake install
 

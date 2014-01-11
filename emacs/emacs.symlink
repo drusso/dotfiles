@@ -197,6 +197,12 @@ opened buffers."
 ;; Disable line highlighting.
 (remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)
 
+;; Turn off line numbers in the gutter and make the left and right fringes
+;; smaller.
+(global-linum-mode 0)
+(setq linum-format " %d ")
+(set-fringe-style `(2 . 4)) ;; `(left-margin-in-px right-margin-in-px)
+
 ;; use clojure-mode to edit ClojureScript files
 (add-to-list 'auto-mode-alist '("\.cljs$" . clojure-mode))
 

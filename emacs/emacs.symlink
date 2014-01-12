@@ -4,6 +4,8 @@
 ;; $ brew install aspell --lang=en
 ;; NOTE: still having issues with flyspell -- need to investigate
 
+(message "Loading .emacs...")
+
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -55,7 +57,12 @@
     (shell-command-to-string "source $HOME/.bash_profile && printf $PATH")))
 
 ;; start a single emacs server
-(server-start)
+(require 'server)
+(if (not (server-running-p))
+    (progn
+      (message "Emacs server not started, starting one...")
+      (server-start))
+    (message "Emacs server already started."))
 
 ;; use a small font size for MBP Retina
 (set-face-attribute 'default nil :height 100)
@@ -325,3 +332,5 @@ opened buffers."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40"))
+
+(message "Finished loading .emacs...")

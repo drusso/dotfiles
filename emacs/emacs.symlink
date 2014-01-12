@@ -306,6 +306,10 @@ opened buffers."
 ;; To enable the menu bar, set menu-bar-mode to `t`.
 ;; (menu-bar-mode t)
 
+;; Enable `dired-find-alternate-file`. If enabled, pressing the key `a` will
+;; replace the existing dired buffer instead of starting a new buffer.
+(put 'dired-find-alternate-file 'disabled nil)
+
 ;; Show column numbers
 (setq column-number-mode t)
 

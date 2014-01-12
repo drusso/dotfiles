@@ -22,6 +22,14 @@ export EDITOR='/usr/local/bin/emacsclient'
 # Activate z.
 . z
 
+# Ignore some directories (useful for bash auto-complete).
+export FIGNORE=.egg-info
+
+# Enable bash completion (uses bash-completion installed via homebrew).
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
+
 # Customize the prompt.
 RED="\[\033[0;31m\]"
 YELLOW="\[\033[0;33m\]"

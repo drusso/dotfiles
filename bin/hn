@@ -11,6 +11,7 @@ help()
     hn [-c] [-h] [-l LIMIT]
 
   OPTIONS:
+    -c    Colorize the output.
     -l    Limit to LIMIT articles.
     -h    prints a summary of the help options.
 
@@ -30,9 +31,6 @@ help()
     hn -l 1
       GoDaddy supports SOPA, redditor proposes "Move your Domain Day"
       http://www.reddit.com/r/politics/comments/nmnie/godaddy_supports_sopa_im_transferring_51_domains/
-
-  SEE:
-    https://github.com/jeyb/hackernews
 EOF
 }
 
@@ -49,19 +47,20 @@ hackernews()
 
   # GNU sed uses -r for expanded regular expressions but OS X does not use GNU
   # sed. Instead it relies on -E argument.
-  sed_attributes="-r"
+  sed_attributes="-re"
   if [ "`uname`" = "Darwin" ]
   then
-    sed_attributes="-E"
+    sed_attributes="-Ee"
   fi
 
-  attributes="title|link|comments"
-  curl -s "http://news.ycombinator.com/rss" |
+  attributes="title|link"
+  curl -s "https://news.ycombinator.com/rss" |
     grep -Eio "<item>.*</item>" |
     grep -Eio "<($attributes)>[^<>]*</($attributes)>" |
-    sed $sed_attributes "s/<title>([^<>]*)<\/title>/$highlight_title\1/" |
-    sed $sed_attributes "s/<link>([^<>]*)<\/link>/$highlight_link\1/" |
-    sed $sed_attributes "s/<comments>([^<>]*)<\/comments>/$highlight_comments\1★/" |
+    sed $sed_attributes "s/<title>([^<>]*)<\/title>/$highlight_title\1/" \
+        -e "s/<link>([^<>]*)<\/link>/$highlight_link\1★/" \
+        -e "s/&#x2F;/\//g" \
+        -e "s/&#x27;/'/g" |
     tr "★" "\n" |
     head -n $limit
   printf "\033[0m"
@@ -80,13 +79,6 @@ set_color()
   then
     highlight_link=""
   fi
-
-  highlight_comments=`echo "\033[0;32m"`
-  if [ "$highlight_comments" = "\033[0;33m" ]
-  then
-    highlight_comments=""
-  fi
-
 }
 
 while getopts "chl:" OPTION
@@ -95,6 +87,9 @@ do
     h)
       help
       exit 1;
+      ;;
+    c)
+      set_color
       ;;
     l)
       limit=$OPTARG
@@ -110,7 +105,5 @@ do
       ;;
   esac
 done
-
-set_color
 
 hackernews

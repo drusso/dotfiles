@@ -13,7 +13,7 @@
 
 if test "$1" == ""
 then
-  $($EDITOR --no-wait --create-frame .)
+  $($EDITOR --no-wait .)
 else
-  $($EDITOR --no-wait --create-frame $1)
+  $($EDITOR --no-wait $1)
 fi

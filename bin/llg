@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Quick shortcut for listing directory contents and grepping them.
+
+if [ "$#" -ne 2 ]; then
+  ls -al | grep $1
+else
+  ls -al $1 | grep $2
+fi

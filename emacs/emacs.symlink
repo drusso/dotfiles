@@ -25,6 +25,7 @@
     color-theme
     color-theme-library
     color-theme-solarized
+    expand-region
     find-file-in-project
     find-things-fast
     fountain-mode
@@ -61,6 +62,7 @@
 (require 'color-theme)
 (require 'color-theme-library)
 (require 'color-theme-solarized)
+(require 'expand-region)
 (require 'fountain-mode)
 (require 'highlight-indentation)
 (require 'mouse)
@@ -185,6 +187,31 @@
 (add-to-list 'auto-mode-alist '("\\.fountain$" . fountain-mode))
 
 
+
+
+;; Some useful commands/keybindings for navigating within regions, particularly
+;; quoted regions.
+(defun contract-region ()
+  (interactive)
+  (er/expand-region -1))
+(defun mark-outside-quotes ()
+  (interactive)
+  (er/mark-inside-quotes)
+  (er/expand-region))
+(defun goto-next-quote ()
+  (interactive)
+  (forward-char)
+  (search-forward-regexp "[\"\|']")
+  (backward-char))
+(defun goto-previous-quote ()
+  (interactive)
+  (search-backward-regexp "[\"\|']"))
+(global-set-key (kbd "M-[") 'contract-region)
+(global-set-key (kbd "M-]") 'er/expand-region)
+(global-set-key (kbd "M-'") 'er/mark-inside-quotes)
+(global-set-key (kbd "M-\"") 'mark-outside-quotes)
+(global-set-key (kbd "C-'") 'goto-next-quote)
+(global-set-key (kbd "C-;") 'goto-previous-quote)
 
 
 ;; Set up bookmark (bm, https://github.com/joodland/bm).

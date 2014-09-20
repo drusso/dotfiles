@@ -243,7 +243,7 @@ opened buffers."
 (global-set-key (kbd "C-`") 'switch-to-buffer)
 (global-set-key (kbd "C--") 'switch-to-prev-buffer)
 (global-set-key (kbd "C-=") 'switch-to-next-buffer)
-(global-set-key (kbd "C-0") 'kill-buffer)
+(global-set-key (kbd "C-0") 'kill-this-buffer)
 
 ;; Disable line highlighting.
 (remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)

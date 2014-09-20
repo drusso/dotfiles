@@ -380,6 +380,12 @@ configuration to a new register."
 (global-set-key (kbd "C-.") 'forward-paragraph)
 (global-set-key (kbd "C-/") 'exchange-point-and-mark)
 
+;; Define aliases beginning with the `rectangle-` prefix for commonly used
+;; rectangle operations.
+(defalias 'rectangle-replace 'replace-rectangle)
+(defalias 'rectangle-insert 'string-insert-rectangle)
+(defalias 'rectangle-delete 'delete-rectangle)
+
 ;; Set indendation to 2 spaces for javascript and coffee script modes.
 (setq js-indent-level 2)
 (custom-set-variables '(coffee-tab-width 2))

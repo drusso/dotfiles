@@ -23,6 +23,7 @@
     clojure-mode
     coffee-mode
     color-theme
+    color-theme-library
     color-theme-solarized
     find-file-in-project
     find-things-fast
@@ -58,6 +59,7 @@
 ;; Now that the packages are on the `load-path`, require them.
 (require 'bm)
 (require 'color-theme)
+(require 'color-theme-library)
 (require 'color-theme-solarized)
 (require 'fountain-mode)
 (require 'highlight-indentation)
@@ -86,10 +88,11 @@
 ;; Set the font size to 10pt. Note for presentations, 16pt is a good size.
 (set-face-attribute 'default nil :height 100)
 
-;; Set up the solarized colour theme.
-(require 'color-theme)
-(require 'color-theme-solarized)
-(color-theme-solarized-dark)
+
+;; Some nice colour themes.
+;; (color-theme-solarized-dark)
+(color-theme-molokai)
+
 
 ;; Enable mouse support in terminal.
 ;;

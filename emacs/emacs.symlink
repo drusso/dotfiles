@@ -124,12 +124,44 @@
 (defun ido-disable-line-trucation () (set (make-local-variable 'truncate-lines) nil))
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-trucation)
 
-;; Use textmate minor mode, but don't use textmate's 'textmate-goto-file
-;; binding. Instead, use find-things-fast for searching projects.
-(require 'textmate)
-(define-key *textmate-mode-map* [(super t)] nil)
+
+;; Use textmate minor mode, and set custom file/directory exclusion regex for
+;; use by `textmate-goto-file` (which is bound to `super-t`).
 (textmate-mode)
-(global-set-key [(super t)] 'ftf-find-file)
+(setq *textmate-gf-exclude*
+      (concat
+       "(/|^)"
+       "(\\.+[^/]+"
+       "|vendor"
+       "|fixtures"
+       "|tmp"
+       "|log"
+       "|classes"
+       "|build"
+       "|eggs"
+       "|develop-eggs"
+       "|git-eggs"
+       "|node_modules"
+       ")($|/)"
+       "|(\\.xcodeproj"
+       "|\\.nib"
+       "|\\.framework"
+       "|\\.app"
+       "|\\.pbproj"
+       "|\\.pbxproj"
+       "|\\.xcode"
+       "|\\.xcodeproj"
+       "|\\.bundle"
+       "|\\.pyc"
+       "|\\.egg-info"
+       "|\\.DS_Store"
+       ")(/|$)"))
+
+;; Alternate file finder for super-t using ftf (find things fast).
+;; (define-key *textmate-mode-map* [(super t)] nil)
+;; (global-set-key [(super t)] 'ftf-find-file)
+
+
 ;; Configuration for multi-web-mode.
 (setq mweb-default-major-mode 'html-mode)
 (setq mweb-filename-extensions '("html"))

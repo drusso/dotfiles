@@ -7,6 +7,8 @@
 (message "Loading .emacs...")
 
 (require 'package)
+
+
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (add-to-list 'package-archives
@@ -16,14 +18,12 @@
 (when (not package-archive-contents)
   (package-refresh-contents))
 
-;; Add in your own as you wish:
 (defvar my-packages
   '(bm
     clojure-mode
     coffee-mode
     color-theme
     color-theme-solarized
-    ecb
     find-file-in-project
     find-things-fast
     gist
@@ -51,20 +51,34 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-;; read in PATH from .bash_profile
+
+;; Now that the packages are on the `load-path`, require them.
+(require 'bm)
+(require 'color-theme)
+(require 'color-theme-solarized)
+(require 'highlight-indentation)
+(require 'mouse)
+(require 'textmate)
+(require 'server)
+(require 'vc)
+
+
+;; Read in PATH from `.bash_profile`.
 (if (not (getenv "TERM_PROGRAM"))
   (setenv "PATH"
     (shell-command-to-string "source $HOME/.bash_profile && printf $PATH")))
+(setq exec-path (append exec-path '("/usr/local/bin")))
 
-;; start a single emacs server
-(require 'server)
+
+;; Start a single emacs server.
 (if (not (server-running-p))
     (progn
       (message "Emacs server not started, starting one...")
       (server-start))
     (message "Emacs server already started."))
 
-;; use a small font size for MBP Retina
+
+;; Set the font size to 10pt. Note for presentations, 16pt is a good size.
 (set-face-attribute 'default nil :height 100)
 
 ;; Set up the solarized colour theme.
@@ -90,6 +104,13 @@
       (defun track-mouse (e))
       (setq mouse-sel-mode t)))
 
+
+;; Do not scroll dramatically when moving one line at a time.
+(setq-default scroll-conservatively 1)
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 5)))
+
+
 ;; Display ido results vertically, rather than horizontally.
 (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
 (defun ido-disable-line-trucation () (set (make-local-variable 'truncate-lines) nil))
@@ -102,32 +123,9 @@
 (textmate-mode)
 (global-set-key [(super t)] 'ftf-find-file)
 
-;; Set up ECB (Emacs Code Browser).
-(require 'ecb-autoloads)
-(global-set-key (kbd "C-1") 'ecb-toggle-ecb-windows)
-(global-set-key (kbd "C-2") 'ecb-goto-window-directories)
-(global-set-key (kbd "C-3") 'ecb-goto-window-edit1)
-(global-set-key (kbd "C-4") 'ecb-goto-window-edit2)
-(setq
- ecb-layout-name "left13"
- ecb-options-version "2.40"
- ecb-show-sources-in-directories-buffer (quote always)
- ecb-source-file-regexps (quote ((".*" ("\\(^\\(\\.\\|#\\)\\|\\(~$\\|\\.\\(pyc\\|elc\\|obj\\|o\\|class\\|lib\\|dll\\|a\\|so\\|cache\\)$\\)\\)") ("^\\.\\(emacs\\|gnus\\)$"))))
- ecb-source-path
-  (quote
-   (("~" "~")
-    ))
- ecb-split-edit-window-after-start (quote horizontal)
- ecb-tip-of-the-day nil
- ecb-tree-buffer-style (quote ascii-no-guides)
- ecb-tree-indent 0
- ecb-tree-make-parent-node-sticky nil
- ecb-vc-enable-support t
- ecb-windows-width 0.20)
-(ecb-minor-mode)
 
 ;; Set up bookmark (bm, https://github.com/joodland/bm).
-(require 'bm)
+
 (setq bm-cycle-all-buffers nil)
 
 (defun bm-navigate-all (direction)
@@ -157,25 +155,6 @@ option."
 (global-set-key (kbd "M-_") 'bm-previous-all)
 (global-set-key (kbd "M-+") 'bm-next-all)
 
-;; Change the behaviour of M-d so that its use does not place removed text onto
-;; the kill ring.
-(defun delete-word (arg)
-  "Delete characters forward until encountering the end of a word.
-With argument, do this that many times."
-  (interactive "p")
-  (delete-region (point) (progn (forward-word arg) (point))))
-
-(global-set-key (kbd "M-d") 'delete-word)
-
-;; Change the behaviour of of M-DEL so that its use does not place the removed
-;; text onto the kill ring.
-(defun backward-delete-word (arg)
-  "Delete characters backward until encountering the end of a word.
-With argument, do this that many times."
-  (interactive "p")
-  (delete-word (- arg)))
-
-(global-set-key (read-kbd-macro "<M-DEL>") 'backward-delete-word)
 
 (defun flush-buffer-history ()
   "Clear the list of recent files that were opened. When this
@@ -196,6 +175,7 @@ opened buffers."
   :lighter " resize"
   :keymap resize-mode-keymap)
 
+
 ;; Buffer management
 (global-set-key (kbd "C-`") 'switch-to-buffer)
 (global-set-key (kbd "C--") 'switch-to-prev-buffer)
@@ -214,19 +194,13 @@ opened buffers."
 ;; use clojure-mode to edit ClojureScript files
 (add-to-list 'auto-mode-alist '("\.cljs$" . clojure-mode))
 
-;; nrepl
-(require 'nrepl)
-(setq nrepl-popup-stacktraces nil)
-(add-hook 'nrepl-mode-hook
-          (lambda () (setq show-trailing-whitespace nil)))
-(add-hook 'nrepl-interaction-mode-hook
-          'nrepl-turn-on-eldoc-mode)
-
 ;; Setup for ansi-term.
 (add-hook 'term-mode-hook
-          (lambda () (setq show-trailing-whitespace nil)))
+          (lambda ()
+            (setq show-trailing-whitespace nil)))
 (add-hook 'term-exec-hook
-          (lambda () (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix)))
+          (lambda ()
+            (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix)))
 
 ;; Turn off line wrapping.
 (set-default 'truncate-lines t)
@@ -237,8 +211,7 @@ opened buffers."
 (setq-default fill-column 79)
 
 ;; indentation highlighting
-(require 'highlight-indentation)
-(setq-default highlight-indent-offset 4)
+(highlight-indentation-set-offset 2)
 
 ;; Keybinding for phrase highlighting.
 (global-set-key (kbd "M-p") 'highlight-phrase)
@@ -250,11 +223,7 @@ opened buffers."
 
 ;; Set indendation to 2 spaces for javascript and coffee script modes.
 (setq js-indent-level 2)
-(defun coffee-custom ()
-  (make-local-variable 'tab-width)
-  (set 'tab-width 2)
-  )
-(add-hook 'coffee-mode-hook 'coffee-custom)
+(custom-set-variables '(coffee-tab-width 2))
 
 ;; disable automatic scss compilation
 (setq scss-compile-at-save nil)
@@ -294,8 +263,11 @@ opened buffers."
           (ding))))
 
 ;; move point from window to window using shift and the arrow keys
-(when (fboundp 'windmove-default-keybindings)
-  (windmove-default-keybindings))
+(global-set-key (kbd "s-<right>") 'windmove-right)
+(global-set-key (kbd "s-<left>") 'windmove-left)
+(global-set-key (kbd "s-<up>") 'windmove-up)
+(global-set-key (kbd "s-<down>") 'windmove-down)
+
 
 ;; Use org-indent-mode by default
 (add-hook 'org-mode-hook (lambda () (org-indent-mode t)) t)
@@ -306,11 +278,6 @@ opened buffers."
 ;; automatically delete trailing whitespace
 (add-hook 'write-file-hooks 'delete-trailing-whitespace)
 
-;; do not scroll dramatically when moving one line at a time
-(setq-default scroll-conservatively 1)
-(setq mouse-wheel-progressive-speed nil)
-(setq mouse-wheel-scroll-amount '(2 ((shift) . 5)))
-
 ;; To enable the menu bar, set menu-bar-mode to `t`.
 ;; (menu-bar-mode t)
 
@@ -318,20 +285,9 @@ opened buffers."
 ;; replace the existing dired buffer instead of starting a new buffer.
 (put 'dired-find-alternate-file 'disabled nil)
 
-;; Show column numbers
+
+;; Show column numbers.
 (setq column-number-mode t)
 
-;; Setup the frame.
-(split-window-right)
-(split-window-right)
-(balance-windows)
-(ns-toggle-fullscreen)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ecb-options-version "2.40"))
 
 (message "Finished loading .emacs...")

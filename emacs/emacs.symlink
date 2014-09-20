@@ -272,6 +272,69 @@ opened buffers."
 (global-set-key (kbd "C-=") 'switch-to-next-buffer)
 (global-set-key (kbd "C-0") 'kill-this-buffer)
 
+
+;; Emacs maximize active window experiment
+
+;; This is an experiment with Emacs windows (i.e., split windows) inspired by
+;; iTerm's "Maximize Active Pane" functionality. The provided commands are
+;; useful when you have many split windows open and you want to temporarily
+;; focus in on one of them.
+
+;; Window configurations are stored in and restored from a stack. This means
+;; you can go back to previous configurations (but you can't navigate back and
+;; forth through configurations, yet).
+
+;; `Cmd-+` will save push the current window configuration to the stack then
+;;         maximize the current window.
+;; `Cmd-=` will save the current window configuration.
+;; `Cmd-_` will restore the last saved window configuration.
+
+
+(setq *wf-starting-register* 1000)
+(setq *wf-last-register* nil)
+
+(defun wf-next-register ()
+  (if (eq nil *wf-last-register*)
+      *wf-starting-register*
+    (+ *wf-last-register* 1)))
+
+(defun wf-previous-register ()
+  (if (eq *wf-starting-register* *wf-last-register*)
+      nil
+    (- *wf-last-register* 1)))
+
+(defun wf-save-to-new-register ()
+  (let ((next-register (wf-next-register)))
+    (setq *wf-last-register* next-register)
+    (window-configuration-to-register next-register)))
+
+(defun wf-max-current ()
+  "Write the current window configuration to a new register,
+make the active window the sole window on screen, and save this
+configuration to a new register."
+  (interactive)
+  (wf-save-to-new-register)
+  (delete-other-windows)
+  (wf-save-to-new-register)
+  )
+
+(defun wf-record-current ()
+  (interactive)
+  (wf-save-to-new-register))
+
+(defun wf-restore-previous ()
+  "Return to the previously saved window configuration."
+  (interactive)
+  (if *wf-last-register*
+      (progn
+        (jump-to-register *wf-last-register*)
+        (setq *wf-last-register* (wf-previous-register)))))
+
+(global-set-key (kbd "s-+") 'wf-max-current)
+(global-set-key (kbd "s-=") 'wf-record-current)
+(global-set-key (kbd "s-_") 'wf-restore-previous)
+
+
 ;; Disable line highlighting.
 (remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)
 

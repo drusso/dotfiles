@@ -26,12 +26,15 @@
     color-theme-solarized
     find-file-in-project
     find-things-fast
+    fountain-mode
     gist
     haml-mode
     highlight-indentation
     idle-highlight-mode
+    json-mode
     magit
     markdown-mode
+    multi-web-mode
     nrepl
     org
     paredit
@@ -56,8 +59,10 @@
 (require 'bm)
 (require 'color-theme)
 (require 'color-theme-solarized)
+(require 'fountain-mode)
 (require 'highlight-indentation)
 (require 'mouse)
+(require 'multi-web-mode)
 (require 'textmate)
 (require 'server)
 (require 'vc)
@@ -122,6 +127,29 @@
 (define-key *textmate-mode-map* [(super t)] nil)
 (textmate-mode)
 (global-set-key [(super t)] 'ftf-find-file)
+;; Configuration for multi-web-mode.
+(setq mweb-default-major-mode 'html-mode)
+(setq mweb-filename-extensions '("html"))
+(setq mweb-tags
+  '((js-mode
+     "<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>"
+     "</script>")
+    (handlebars-mode
+     "<script +\\(type=\"text/handlebars\"\\|language=\"handlebars\"\\)[^>]*>"
+     "</script>")
+    (coffee-mode
+     "<script +\\(type=\"text/coffeescript\"\\|language=\"coffeescript\"\\)[^>]*>"
+     "</script>")
+    (css-mode
+     "<style +type=\"text/css\"[^>]*>"
+     "</style>")))
+(multi-web-global-mode 1)
+
+
+;; Enable fountain-mode
+(add-to-list 'auto-mode-alist '("\\.fountain$" . fountain-mode))
+
+
 
 
 ;; Set up bookmark (bm, https://github.com/joodland/bm).

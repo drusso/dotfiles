@@ -73,21 +73,22 @@
 (color-theme-solarized-dark)
 
 ;; Enable mouse support in terminal.
-(require 'mouse)
-(xterm-mouse-mode t)
-(global-set-key [mouse-4] '(lambda ()
-                            (interactive)
-                            (scroll-down 1)))
-(global-set-key [mouse-5] '(lambda ()
-                            (interactive)
-                            (scroll-up 1)))
-(defun track-mouse (e))
-(setq mouse-sel-mode t)
-
-;; Enable cua mode, but only for rectangles.
-;; (C-RET will start a rectangular selection.)
-(setq cua-enable-cua-keys nil)
-(cua-mode t)
+;;
+;; Note `window-system` is `nil` when in a terminal, and "ns" when in a Cocoa
+;; frame.
+(if (not window-system)
+    (progn
+      (xterm-mouse-mode t)
+      (global-set-key [mouse-4]
+       '(lambda ()
+          (interactive)
+          (scroll-down 1)))
+      (global-set-key [mouse-5]
+       '(lambda ()
+          (interactive)
+          (scroll-up 1)))
+      (defun track-mouse (e))
+      (setq mouse-sel-mode t)))
 
 ;; Display ido results vertically, rather than horizontally.
 (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))

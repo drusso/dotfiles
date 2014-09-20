@@ -189,6 +189,12 @@
 
 
 
+;; Set the right command key as control. This works in Cocoa Emacs, for the
+;; most part, except OS X handles Cmd+Space (and related keybindings) before
+;; Emacs can.
+(setq mac-right-command-modifier 'control)
+
+
 ;; Some useful commands/keybindings for navigating within regions, particularly
 ;; quoted regions.
 (defun contract-region ()

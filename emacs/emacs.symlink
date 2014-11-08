@@ -48,6 +48,7 @@
     scss-mode
     starter-kit
     stylus-mode
+    swift-mode
     textmate
     yaml-mode)
   "A list of packages to ensure are installed at launch.")

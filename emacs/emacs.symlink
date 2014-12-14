@@ -1,20 +1,19 @@
 ;; -*- mode: emacs-lisp -*-
 
-;; note: in order for flyspell to work, aspell must be installed
-;; $ brew install aspell --lang=en
-;; NOTE: still having issues with flyspell -- need to investigate
-
 (message "Loading .emacs...")
 
 (require 'package)
 
+;; Add some package repositories.
+(add-to-list
+ 'package-archives
+ '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(add-to-list
+ 'package-archives
+ '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+;; Initialize package system.
 (package-initialize)
-
 (when (not package-archive-contents)
   (package-refresh-contents))
 
@@ -24,32 +23,44 @@
     coffee-mode
     color-theme
     color-theme-library
+    color-theme-molokai
+    color-theme-monokai
     color-theme-solarized
     expand-region
+    fill-column-indicator
     find-file-in-project
     find-things-fast
+    flx
+    flx-ido
     fountain-mode
     gist
+    git-gutter
+    git-gutter-fringe
     haml-mode
     highlight-indentation
+    hlinum
     idle-highlight-mode
     json-mode
     magit
     markdown-mode
     multi-web-mode
+    multiple-cursors
     nrepl
     org
     paredit
+    perspective
+    persp-projectile
+    projectile
     pyflakes
     pylint
     python-mode
     python-pep8
+    rich-minority
     ruby-mode
     scss-mode
     starter-kit
     stylus-mode
     swift-mode
-    textmate
     yaml-mode)
   "A list of packages to ensure are installed at launch.")
 
@@ -57,28 +68,31 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-
 ;; Now that the packages are on the `load-path`, require them.
 (require 'bm)
 (require 'color-theme)
 (require 'color-theme-library)
 (require 'color-theme-solarized)
 (require 'expand-region)
+(require 'fill-column-indicator)
 (require 'fountain-mode)
+(require 'git-gutter-fringe)
 (require 'highlight-indentation)
 (require 'mouse)
 (require 'multi-web-mode)
-(require 'textmate)
+(require 'multiple-cursors)
+(require 'persp-projectile)
+(require 'rich-minority)
 (require 'server)
+(require 'smart-mode-line)
+(require 'textmate)
 (require 'vc)
-
 
 ;; Read in PATH from `.bash_profile`.
 (if (not (getenv "TERM_PROGRAM"))
   (setenv "PATH"
     (shell-command-to-string "source $HOME/.bash_profile && printf $PATH")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
-
 
 ;; Start a single emacs server.
 (if (not (server-running-p))
@@ -87,15 +101,12 @@
       (server-start))
     (message "Emacs server already started."))
 
-
 ;; Set the font size to 10pt. Note for presentations, 16pt is a good size.
 (set-face-attribute 'default nil :height 100)
-
 
 ;; Some nice colour themes.
 ;; (color-theme-solarized-dark)
 (color-theme-molokai)
-
 
 ;; Enable mouse support in terminal.
 ;;
@@ -115,55 +126,25 @@
       (defun track-mouse (e))
       (setq mouse-sel-mode t)))
 
-
 ;; Do not scroll dramatically when moving one line at a time.
 (setq-default scroll-conservatively 1)
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 5)))
-
 
 ;; Display ido results vertically, rather than horizontally.
 (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
 (defun ido-disable-line-trucation () (set (make-local-variable 'truncate-lines) nil))
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-trucation)
 
+;; Associate file extensions to major modes.
+(add-to-list 'auto-mode-alist '("\\.cljs$" . clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.fountain$" . fountain-mode))
+(add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
 
-;; Use textmate minor mode, and set custom file/directory exclusion regex for
-;; use by `textmate-goto-file` (which is bound to `super-t`).
-(textmate-mode)
-(setq *textmate-gf-exclude*
-      (concat
-       "(/|^)"
-       "(\\.+[^/]+"
-       "|vendor"
-       "|fixtures"
-       "|tmp"
-       "|log"
-       "|classes"
-       "|build"
-       "|eggs"
-       "|develop-eggs"
-       "|git-eggs"
-       "|node_modules"
-       ")($|/)"
-       "|(\\.xcodeproj"
-       "|\\.nib"
-       "|\\.framework"
-       "|\\.app"
-       "|\\.pbproj"
-       "|\\.pbxproj"
-       "|\\.xcode"
-       "|\\.xcodeproj"
-       "|\\.bundle"
-       "|\\.pyc"
-       "|\\.egg-info"
-       "|\\.DS_Store"
-       ")(/|$)"))
-
-;; Alternate file finder for super-t using ftf (find things fast).
-;; (define-key *textmate-mode-map* [(super t)] nil)
-;; (global-set-key [(super t)] 'ftf-find-file)
-
+;; Borrow textmate mode's line commenting behaviour.
+(unless (fboundp 'comment-or-uncomment-region-or-line)
+  (allow-line-as-region-for-function comment-or-uncomment-region))
+(global-set-key (kbd "s-/") 'comment-or-uncomment-region-or-line)
 
 ;; Configuration for multi-web-mode.
 (setq mweb-default-major-mode 'html-mode)
@@ -183,18 +164,10 @@
      "</style>")))
 (multi-web-global-mode 1)
 
-
-;; Enable fountain-mode
-(add-to-list 'auto-mode-alist '("\\.fountain$" . fountain-mode))
-
-
-
-
 ;; Set the right command key as control. This works in Cocoa Emacs, for the
 ;; most part, except OS X handles Cmd+Space (and related keybindings) before
 ;; Emacs can.
-(setq mac-right-command-modifier 'control)
-
+;; (setq mac-right-command-modifier 'control)
 
 ;; Some useful commands/keybindings for navigating within regions, particularly
 ;; quoted regions.
@@ -220,139 +193,125 @@
 (global-set-key (kbd "C-'") 'goto-next-quote)
 (global-set-key (kbd "C-;") 'goto-previous-quote)
 
+;; Set up some keybindings for multiple-cursors convenience.
+(global-set-key (kbd "s-[") 'mc/edit-beginnings-of-lines)
+(global-set-key (kbd "s-]") 'mc/edit-ends-of-lines)
+(global-set-key (kbd "s-\\") 'mc/edit-lines)
+(global-set-key (kbd "s-{") 'mc/mark-all-like-this)
+(global-set-key (kbd "s-}") 'mc/mark-all-in-region)
 
-;; Set up bookmark (bm, https://github.com/joodland/bm).
-
+;; Set up bookmark (bm, https://github.com/joodland/bm). This option makes
+;; `bm-toggle` toggle only between bookmarks in the *current* buffer.
 (setq bm-cycle-all-buffers nil)
 
-(defun bm-navigate-all (direction)
-  (let ((is-cycling-all bm-cycle-all-buffers))
-    (setq bm-cycle-all-buffers t)
-    (funcall direction)
-    (setq bm-cycle-all-buffers is-cycling-all)
-    ))
+;; Set up buffer/project management using projectile and perspective.
+(projectile-global-mode)
+(persp-mode)
+(flx-ido-mode)
+(setq projectile-enable-caching t)
+(setq projectile-require-project-root nil)
+(setq projectile-globally-ignored-directories
+      (append '("build"
+                "eggs"
+                "git-eggs"
+                "develop-eggs"
+                "node_modules"
+                "log"
+                "tmp")
+              projectile-globally-ignored-directories))
 
-(defun bm-previous-all ()
-  "Navigate the bookmarks across all buffers in the reverse
-direction. This temporarily ignores the `bm-cycle-all-buffers`
-option."
+;; A quick-and-dirty way to take the current buffer and make a new perspective
+;; with just that buffer. Supersedes my old "maximize active window"
+;; experiment!
+(defun spawn-temp-perspective-with-current-buffer ()
   (interactive)
-  (bm-navigate-all 'bm-previous))
+  (let ((buff (current-buffer)))
+    (persp-switch "tmp")
+    (persp-add-buffer buff)
+    (switch-to-buffer buff)))
 
-(defun bm-next-all ()
-  "Navigate the bookmarks across all buffers in the forward
-direction. This temporarily ignores the `bm-cycle-all-buffers`
-option."
-  (interactive)
-  (bm-navigate-all 'bm-next))
-
-(global-set-key (kbd "M-0") 'bm-toggle)
-(global-set-key (kbd "M--") 'bm-previous)
-(global-set-key (kbd "M-=") 'bm-next)
-(global-set-key (kbd "M-_") 'bm-previous-all)
-(global-set-key (kbd "M-+") 'bm-next-all)
-
-
-(defun flush-buffer-history ()
-  "Clear the list of recent files that were opened. When this
-list is cleared, ido's buffer list will no longer list recently
-opened buffers."
-  (interactive)
-  (setq recentf-list '()))
-
-;; Window management
-(defvar resize-mode-keymap (make-keymap) "resize mode keymap")
-(define-key resize-mode-keymap (kbd "<left>") 'shrink-window-horizontally)
-(define-key resize-mode-keymap (kbd "<right>") 'enlarge-window-horizontally)
-(define-key resize-mode-keymap (kbd "<down>") 'shrink-window)
-(define-key resize-mode-keymap (kbd "<up>") 'enlarge-window)
-(define-minor-mode resize-mode "something"
-  :group 'window-management
-  :init-value nil
-  :lighter " resize"
-  :keymap resize-mode-keymap)
-
-
-;; Buffer management
+;; Set up some keybindings for navigating/working with buffers and
+;; perspectives.
 (global-set-key (kbd "C-`") 'switch-to-buffer)
 (global-set-key (kbd "C--") 'switch-to-prev-buffer)
 (global-set-key (kbd "C-=") 'switch-to-next-buffer)
 (global-set-key (kbd "C-0") 'kill-this-buffer)
+(global-set-key (kbd "M-`") 'persp-switch)
+(global-set-key (kbd "M--") 'persp-prev)
+(global-set-key (kbd "M-=") 'persp-next)
+(global-set-key (kbd "M-<tab>") 'projectile-switch-project)
+(global-set-key [(super t)] 'projectile-find-file)
+(global-set-key [(super r)] 'projectile-grep)
+(global-set-key (kbd "M-+") 'spawn-temp-perspective-with-current-buffer)
 
+;; Customize the mode line. Uses smart-mode-line and rich-minority.
+(sml/setup)
+(rich-minority-mode 1)
 
-;; Emacs maximize active window experiment
+;; This empty list will stop smart-mode-line from making any space-saving
+;; replacements of the buffer name.
+(setq sml/replacer-regexp-list '())
 
-;; This is an experiment with Emacs windows (i.e., split windows) inspired by
-;; iTerm's "Maximize Active Pane" functionality. The provided commands are
-;; useful when you have many split windows open and you want to temporarily
-;; focus in on one of them.
-
-;; Window configurations are stored in and restored from a stack. This means
-;; you can go back to previous configurations (but you can't navigate back and
-;; forth through configurations, yet).
-
-;; `Cmd-+` will save push the current window configuration to the stack then
-;;         maximize the current window.
-;; `Cmd-=` will save the current window configuration.
-;; `Cmd-_` will restore the last saved window configuration.
-
-
-(setq *wf-starting-register* 1000)
-(setq *wf-last-register* nil)
-
-(defun wf-next-register ()
-  (if (eq nil *wf-last-register*)
-      *wf-starting-register*
-    (+ *wf-last-register* 1)))
-
-(defun wf-previous-register ()
-  (if (eq *wf-starting-register* *wf-last-register*)
-      nil
-    (- *wf-last-register* 1)))
-
-(defun wf-save-to-new-register ()
-  (let ((next-register (wf-next-register)))
-    (setq *wf-last-register* next-register)
-    (window-configuration-to-register next-register)))
-
-(defun wf-max-current ()
-  "Write the current window configuration to a new register,
-make the active window the sole window on screen, and save this
-configuration to a new register."
-  (interactive)
-  (wf-save-to-new-register)
-  (delete-other-windows)
-  (wf-save-to-new-register)
-  )
-
-(defun wf-record-current ()
-  (interactive)
-  (wf-save-to-new-register))
-
-(defun wf-restore-previous ()
-  "Return to the previously saved window configuration."
-  (interactive)
-  (if *wf-last-register*
-      (progn
-        (jump-to-register *wf-last-register*)
-        (setq *wf-last-register* (wf-previous-register)))))
-
-(global-set-key (kbd "s-+") 'wf-max-current)
-(global-set-key (kbd "s-=") 'wf-record-current)
-(global-set-key (kbd "s-_") 'wf-restore-previous)
-
+;; This empty string will hide *every* minor mode.
+(setq rm-excluded-modes "")
 
 ;; Disable line highlighting.
 (remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)
 
-;; Turn off line numbers in the gutter and make the left and right fringes
-;; smaller.
-(global-linum-mode 0)
-(setq linum-format " %d ")
-(set-fringe-style `(2 . 4)) ;; `(left-margin-in-px right-margin-in-px)
+;; Turn on line numbers in the gutter/fringe.
+(global-linum-mode 1)
+(setq linum-format " %d")
 
-;; use clojure-mode to edit ClojureScript files
-(add-to-list 'auto-mode-alist '("\.cljs$" . clojure-mode))
+;; Show column numbers in the mode line, but not the line number.
+(line-number-mode 0)
+(setq column-number-mode t)
+
+;; Make the left fringe visible and the right fringe invisible. The left fringe
+;; is used for the git gutter. Note that since the right fringe is invisibile,
+;; when lines run longer than the window's width, emacs will render a `$` at
+;; the end of the line.
+(setq-default left-fringe-width  2)
+(setq-default right-fringe-width 0)
+
+;; The left-fringe-width and right-fringe-width's set above do not apply to the
+;; *scratch* buffer at boot. This will fix it.
+(set-window-fringes (get-buffer-window) 1)
+
+;; Do not show lines of the window that extend beyond the lines of the buffer.
+(setq-default indicate-empty-lines nil)
+
+;; Highlight the current line in the left fringe.
+(hlinum-activate)
+
+;; Uncomment the following to highlight the current line in all of the buffers,
+;; not just the current buffer.
+;; (setq linum-highlight-in-all-buffersp t)
+
+;; Custom face for the line numbers in the left fringe. This changes the
+;; font-size and font colour. TODO: Would be better to grab the foreground
+;; colour from font-lock.
+(set-face-attribute
+ 'linum nil :foreground "#66D9EF" :height 70)
+
+;; Custom face for the highlighted line in the left fringe. This changes the
+;; font-size and background colour. TODO: Would be better to grab the
+;; background colour from font-lock.
+(set-face-attribute
+ 'linum-highlight-face nil :background "#66D9EF" :height 70)
+
+;; Turn on git-gutter-mode everywhere. Since the git-gutter-fringe package is
+;; required (above), the git gutter will be inserted into the left fringe.
+(global-git-gutter-mode +1)
+
+;; Set the added, deleted, and modified markers in the git gutter. Since the
+;; left fringe is set to only 2 pixels (see above), these markers show up as
+;; thing, straight lines.
+(fringe-helper-define
+ 'git-gutter-fr:added nil "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX")
+(fringe-helper-define
+ 'git-gutter-fr:deleted nil "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX")
+(fringe-helper-define
+ 'git-gutter-fr:modified nil "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX")
 
 ;; Setup for ansi-term.
 (add-hook 'term-mode-hook
@@ -362,24 +321,39 @@ configuration to a new register."
           (lambda ()
             (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix)))
 
-;; Turn off line wrapping.
-(set-default 'truncate-lines t)
-(setq truncate-partial-width-windows nil) ;; This is needed to work for
-                                          ;; vertically split windows.
+;; Turn off auto-fill mode everywhere. For markdown and org buffers, use visual
+;; line mode.
+(add-hook 'after-change-major-mode-hook 'turn-off-auto-fill)
+(add-hook 'org-mode-hook 'turn-on-visual-line-mode)
+(add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
 
-;; Set the default fill column width to 79.
+;; Set the default fill column width to 79. This controls the column width when
+;; using the `fill-column` command (bound to M-q).
 (setq-default fill-column 79)
 
-;; indentation highlighting
+;; Turn on the line fill column line. Uses the `fill-column` variable set
+;; above.
+;; (fci-mode 1)
+;; (setq fci-rule-width 1)
+;; (setq fci-rule-color "slategray")
+
+;; Turn off line wrapping. The `truncate-partial-width-windows` options is
+;; needed for thisto work in vertically split windows.
+(set-default 'truncate-lines t)
+(setq truncate-partial-width-windows nil)
+
+;; When highlight-indendation-mode is on, highlight indentations at every 2
+;; columns.
 (highlight-indentation-set-offset 2)
 
-;; Keybinding for phrase highlighting.
-(global-set-key (kbd "M-p") 'highlight-phrase)
-
 ;; Additional key bindings for navigating buffers quickly.
+(defun jump-many-lines-forward () (interactive) (next-line 15))
+(defun jump-many-lines-backwards () (interactive) (previous-line 15))
 (global-set-key (kbd "C-,") 'backward-paragraph)
 (global-set-key (kbd "C-.") 'forward-paragraph)
 (global-set-key (kbd "C-/") 'exchange-point-and-mark)
+(global-set-key (kbd "M-p") 'jump-many-lines-backwards)
+(global-set-key (kbd "M-n") 'jump-many-lines-forward)
 
 ;; Define aliases beginning with the `rectangle-` prefix for commonly used
 ;; rectangle operations.
@@ -389,56 +363,25 @@ configuration to a new register."
 
 ;; Set indendation to 2 spaces for javascript and coffee script modes.
 (setq js-indent-level 2)
-(custom-set-variables '(coffee-tab-width 2))
+(setq coffee-tab-width 2)
 
-;; disable automatic scss compilation
+;; Disable automatic scss compilation.
 (setq scss-compile-at-save nil)
 
-;; configure the file extensions used by markdown mode
-(setq auto-mode-alist
-  (cons '("\\.md" . markdown-mode) auto-mode-alist))
-(setq auto-mode-alist
-    (cons '("\\.mdown" . markdown-mode) auto-mode-alist))
-(setq auto-mode-alist
-  (cons '("\\.markdown" . markdown-mode) auto-mode-alist))
-
-;; Use visual line mode by default for markdown files.
-(add-hook 'markdown-mode-hook 'turn-off-auto-fill)
-(add-hook 'markdown-mode-hook 'turn-on-visual-line-mode)
-
-;; Use visual line mode by default for org files.
-(add-hook 'org-mode-hook 'turn-off-auto-fill)
-(add-hook 'org-mode-hook 'turn-on-visual-line-mode)
-
-;; Disable the visible notification (note: this seems to activate the audible
-;; bell).
+;; Disable visible and audible notifications.
 (setq visible-bell nil)
+(setq ring-bell-function 'ignore)
 
-;; reduce the number of signals that can trigger the alarm bell
-(setq ring-bell-function
-      (lambda ()
-        (unless (memq this-command
-                      '(isearch-abort
-                        abort-recursive-edit
-                        exit-minibuffer
-                        keyboard-quit
-                        up down
-                        previous-line next-line
-                        backward-char forward-char
-                        mwheel-scroll))
-          (ding))))
-
-;; move point from window to window using shift and the arrow keys
+;; Move point from window to window using the Cmd and arrow keys.
 (global-set-key (kbd "s-<right>") 'windmove-right)
 (global-set-key (kbd "s-<left>") 'windmove-left)
 (global-set-key (kbd "s-<up>") 'windmove-up)
 (global-set-key (kbd "s-<down>") 'windmove-down)
 
-
 ;; Use org-indent-mode by default
 (add-hook 'org-mode-hook (lambda () (org-indent-mode t)) t)
 
-;; display trailing whitespace
+;; Display trailing whitespace.
 (setq-default show-trailing-whitespace t)
 
 ;; automatically delete trailing whitespace
@@ -448,15 +391,13 @@ configuration to a new register."
 ;; (menu-bar-mode t)
 
 ;; Maximize the frame on startup.
-(set-frame-parameter nil 'fullscreen 'maximized)
+(defun maximize-frame ()
+  (interactive)
+  (set-frame-parameter nil 'fullscreen 'maximized))
+(maximize-frame)
 
 ;; Enable `dired-find-alternate-file`. If enabled, pressing the key `a` will
 ;; replace the existing dired buffer instead of starting a new buffer.
 (put 'dired-find-alternate-file 'disabled nil)
-
-
-;; Show column numbers.
-(setq column-number-mode t)
-
 
 (message "Finished loading .emacs...")

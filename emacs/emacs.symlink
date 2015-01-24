@@ -230,6 +230,24 @@
                 "tmp")
               projectile-globally-ignored-directories))
 
+;; Change the `projectile-switch-project-action` to a function that does not
+;; prompt for a file to open when opening a project. Since perspectives are in
+;; use, when switching to a new perspective for the project, this has the
+;; effect of opening the project's perspective's local *scratch* buffer without
+;; prompting for a file to open in the project.
+(defun projectile-switch-project-noop (&optional arg)
+  (run-hooks 'projectile-find-file-hook))
+(projectile-persp-bridge projectile-switch-project-noop)
+(setq projectile-switch-project-action 'projectile-switch-project-noop)
+
+;; Open the "~/scratch/" project in this perspective. Note that
+;; Projectile's default behaviour is to prompt for a file when
+;; switching projects, and a file prompt breaks the boot sequence. But
+;; this works because the prompt has been surpressed from the
+;; `projectile-switch-project-action` override (above), which removes
+;; the prompt.
+(projectile-switch-project-by-name "~/scratch/")
+
 ;; A quick-and-dirty way to take the current buffer and make a new perspective
 ;; with just that buffer. Supersedes my old "maximize active window"
 ;; experiment!
@@ -249,10 +267,21 @@
 (global-set-key (kbd "M-`") 'persp-switch)
 (global-set-key (kbd "M--") 'persp-prev)
 (global-set-key (kbd "M-=") 'persp-next)
+(global-set-key (kbd "M-0") 'persp-kill)
 (global-set-key (kbd "M-<tab>") 'projectile-switch-project)
 (global-set-key [(super t)] 'projectile-find-file)
 (global-set-key [(super r)] 'projectile-grep)
 (global-set-key (kbd "M-+") 'spawn-temp-perspective-with-current-buffer)
+(dolist (project-info
+         '(("s-1" "~/scratch/")
+           ("s-9" "~/.dotfiles/")
+           ))
+  (let ((key  (nth 0 project-info))
+        (path (nth 1 project-info)))
+    (global-set-key (kbd key)
+                    `(lambda ()
+                       (interactive)
+                       (projectile-persp-switch-project ,path)))))
 
 ;; Customize the mode line. Uses smart-mode-line and rich-minority.
 (sml/setup)

@@ -188,17 +188,19 @@
   (search-backward-regexp "[\"\|']"))
 (global-set-key (kbd "M-[") 'contract-region)
 (global-set-key (kbd "M-]") 'er/expand-region)
-(global-set-key (kbd "M-'") 'er/mark-inside-quotes)
-(global-set-key (kbd "M-\"") 'mark-outside-quotes)
-(global-set-key (kbd "C-'") 'goto-next-quote)
-(global-set-key (kbd "C-;") 'goto-previous-quote)
+(global-set-key (kbd "C-;") 'er/mark-inside-quotes)
+(global-set-key (kbd "C-'") 'mark-outside-quotes)
+(global-set-key (kbd "M-'") 'goto-next-quote)
+(global-set-key (kbd "M-;") 'goto-previous-quote)
 
 ;; Set up some keybindings for multiple-cursors convenience.
 (global-set-key (kbd "s-[") 'mc/edit-beginnings-of-lines)
 (global-set-key (kbd "s-]") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "s-\\") 'mc/edit-lines)
-(global-set-key (kbd "s-{") 'mc/mark-all-like-this)
-(global-set-key (kbd "s-}") 'mc/mark-all-in-region)
+(global-set-key (kbd "s-{") 'mc/mark-previous-like-this)
+(global-set-key (kbd "s-}") 'mc/mark-next-like-this)
+(global-set-key (kbd "s-|") 'mc/mark-all-in-region)
+(global-set-key (kbd "s-<mouse-1>") 'mc/add-cursor-on-click)
 
 ;; Set up bookmark (bm, https://github.com/joodland/bm). This option makes
 ;; `bm-toggle` toggle only between bookmarks in the *current* buffer.

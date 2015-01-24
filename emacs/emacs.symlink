@@ -46,6 +46,7 @@
     multi-web-mode
     multiple-cursors
     nrepl
+    olivetti
     org
     paredit
     perspective
@@ -343,6 +344,14 @@
 ;; needed for thisto work in vertically split windows.
 (set-default 'truncate-lines t)
 (setq truncate-partial-width-windows nil)
+
+;; Olivetti mode configuration (for writing). Note that linum-mode must be
+;; disabled when using olivetti-mode, since both try to set the margins of the
+;; window and interfere with each other.
+(defun turn-off-linum-mode () (linum-mode 0))
+(setq olivetti-body-width 90)
+(setq olivetti-hide-mode-line t)
+(add-hook 'olivetti-mode-hook 'turn-off-linum-mode)
 
 ;; When highlight-indendation-mode is on, highlight indentations at every 2
 ;; columns.

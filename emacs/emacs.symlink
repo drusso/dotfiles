@@ -109,6 +109,13 @@
 ;; (color-theme-solarized-dark)
 (color-theme-molokai)
 
+;; Don't pretty print `lambda` in lisp/python/etc. buffers.
+(remove-hook 'prog-mode-hook 'esk-pretty-lambdas)
+
+;; Don't let python mode guess the indent offset, always use the default (which
+;; is 4 spaces).
+(setq python-indent-guess-indent-offset nil)
+
 ;; Enable mouse support in terminal.
 ;;
 ;; Note `window-system` is `nil` when in a terminal, and "ns" when in a Cocoa
@@ -308,7 +315,7 @@
 
 ;; Set the added, deleted, and modified markers in the git gutter. Since the
 ;; left fringe is set to only 2 pixels (see above), these markers show up as
-;; thing, straight lines.
+;; thin, straight lines.
 (fringe-helper-define
  'git-gutter-fr:added nil "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX" "XXXX")
 (fringe-helper-define

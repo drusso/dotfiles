@@ -258,6 +258,21 @@
     (persp-add-buffer buff)
     (switch-to-buffer buff)))
 
+;; Rebind the commonly used window commands to automatically rebalance after
+;; creation/deletion.
+(global-set-key (kbd "C-x 0") `(lambda ()
+                                 (interactive)
+                                 (delete-window)
+                                 (balance-windows)))
+(global-set-key (kbd "C-x 2") `(lambda ()
+                                 (interactive)
+                                 (split-window-below)
+                                 (balance-windows)))
+(global-set-key (kbd "C-x 3") `(lambda ()
+                                 (interactive)
+                                 (split-window-right)
+                                 (balance-windows)))
+
 ;; Set up some keybindings for navigating/working with buffers and
 ;; perspectives.
 (global-set-key (kbd "C-`") 'switch-to-buffer)

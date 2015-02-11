@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Gulp vs. Grunt
+
+if [ -e gulpfile.* ]; then
+  gulp $@
+else
+  grunt $@
+ fi

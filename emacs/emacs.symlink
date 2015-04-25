@@ -149,6 +149,26 @@
 (add-to-list 'auto-mode-alist '("\\.fountain$" . fountain-mode))
 (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
 
+(defun rename-current-file (new-name)
+  "Rename the file of the current buffer,
+and automatically replace the buffer with the new file. Scroll
+position is preserved."
+  (interactive "sRename buffer to: ")
+  (let ((p (window-start nil)))
+    (rename-file (buffer-file-name (current-buffer)) new-name)
+    (find-alternate-file new-name)
+    (set-window-start nil p)))
+
+(defun copy-and-comment-region (beg end &optional arg)
+  "Duplicate the region and comment-out the copied text.
+See `comment-region' for behavior of a prefix arg."
+  (interactive "r\nP")
+  (copy-region-as-kill beg end)
+  (goto-char end)
+  (yank)
+  (comment-region beg end arg))
+(global-set-key (kbd "s-C") 'copy-and-comment-region)
+
 ;; Borrow textmate mode's line commenting behaviour.
 (unless (fboundp 'comment-or-uncomment-region-or-line)
   (allow-line-as-region-for-function comment-or-uncomment-region))

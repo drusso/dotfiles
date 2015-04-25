@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# Shortcut for grep. Searches current directory recursively.
+
+grep -nR $1 .

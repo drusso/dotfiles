@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# Shortcut for git grep. Searches current directory recursively.
+
+git grep -n $1 .

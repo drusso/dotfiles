@@ -150,9 +150,9 @@
 (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
 
 (defun rename-current-file (new-name)
-  "Rename the file of the current buffer,
-and automatically replace the buffer with the new file. Scroll
-position is preserved."
+  "Rename the file of the current buffer, and automatically
+replace the buffer with the new file. Scroll position is
+preserved."
   (interactive "sRename buffer to: ")
   (let ((p (window-start nil)))
     (rename-file (buffer-file-name (current-buffer)) new-name)
@@ -160,13 +160,22 @@ position is preserved."
     (set-window-start nil p)))
 
 (defun copy-and-comment-region (beg end &optional arg)
-  "Duplicate the region and comment-out the copied text.
+  "Duplicate and comment out the selected line(s).
 See `comment-region' for behavior of a prefix arg."
   (interactive "r\nP")
-  (copy-region-as-kill beg end)
-  (goto-char end)
-  (yank)
-  (comment-region beg end arg))
+  (if (not (region-active-p))
+      (setq beg (point)
+            end (point)))
+  (save-excursion
+    (setq beg (progn (goto-char beg) (line-beginning-position))
+          end (progn (goto-char end) (line-end-position)))
+    (copy-region-as-kill beg end)
+    (goto-char end)
+    (yank)
+    (comment-region beg end arg))
+  (deactivate-mark)
+  (next-line)
+  (back-to-indentation))
 (global-set-key (kbd "s-C") 'copy-and-comment-region)
 
 ;; Borrow textmate mode's line commenting behaviour.

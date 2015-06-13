@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Shortcut to navigate from the current directory to a parent directory.
+#
+# Example 1:
+#
+#   $ cd /some/path/to/project/src/my/project
+#   $ . updir src
+#   $ pwd => /some/path/to/project/src/
+#
+# Example 2:
+#
+#   $ cd /some/path/to/project/src/my/project
+#   $ . updir sr
+#   $ pwd => /some/path/to/project/src/
+#
+# Note that cd'ing into the directory will only work if you run `updir` with
+# the dot operator!
+
+cwd=`pwd`
+needle=$1
+target=`awk -v haystack="$cwd" -v needle="$needle" 'BEGIN{
+  regex = ".*" needle "[^/]*"
+  match(haystack, regex)
+  print substr(haystack, RSTART, RLENGTH)
+
+}'`
+
+cd $target

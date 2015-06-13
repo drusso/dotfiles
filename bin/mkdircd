@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Quick shortcut to make a directory (with -p) and directly cd into it.
+#
+# USAGE:
+#
+#   $ . mkdircd foo
+#
+# In this example, the command creates the directory `foo` (if it doesn't
+# exist) and cds into it immediately.
+#
+# Note that cd'ing into the directory will only work if you run it with the dot
+# operator!
+
+mkdir -p "$1" && cd "$1"

@@ -2,4 +2,4 @@
 #
 # Quick shortcut for listing directory contents.
 
-ls -al $1
+ls -alG $1

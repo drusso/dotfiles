@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Start a new emacs instance (with server) with the -Q option.
+#
+# USAGE:
+#
+#   $ eq
+#   # => opens the current directory in emacs
+#
+#   $ eq .
+#   $ eq /usr/local
+#   # => opens the specified directory in emacs
+
+if test "$1" == ""
+then
+  emacs -Q .
+else
+  emacs -Q $1
+fi

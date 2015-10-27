@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Print the first line of the input string and any subsequent lines matching
+# the supplied pattern.
+#
+# USAGE:
+#
+#   $ cat foo.txt | grh bar
+#   $ ps -f | grh serve
+
+sed -e '1p' -e '/'"$1"'/!d'
